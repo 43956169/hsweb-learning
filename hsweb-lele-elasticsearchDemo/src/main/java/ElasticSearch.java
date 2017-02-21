@@ -1,3 +1,4 @@
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -9,6 +10,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -63,7 +65,7 @@ public class ElasticSearch {
 
     }
     /* 
-     * 删除index 
+     * 删除记录
      */
     public static void DeleteResponse(Client client){
         DeleteResponse reponse = client.prepareDelete("twitter","tweet","2").get();
@@ -71,6 +73,30 @@ public class ElasticSearch {
         System.out.println(reponse.isFound());
 
     }
+
+    /**
+     * 删除索引
+     */
+    private static boolean deleteIndex(String indexName) {
+        try {
+            Client client = EsClient.getClient();
+
+            IndicesExistsResponse indicesExistsResponse = client.admin()
+                    .indices().prepareExists(indexName).execute().actionGet();
+            if (indicesExistsResponse.isExists()) {
+                //System.out.println("Exists");
+                IndicesAdminClient admin = client.admin().indices();
+                return admin.prepareDelete(indexName).execute().actionGet()
+                        .isAcknowledged();
+            } else {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     /* 
      * update 
      */
