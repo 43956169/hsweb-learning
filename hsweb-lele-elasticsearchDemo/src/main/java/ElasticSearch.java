@@ -208,7 +208,6 @@ public class ElasticSearch {
 //      UpdateRequest(client);
         client.close();
 
-
 //      MultiGet(client);
 
 //      BulkIndex(client);
